@@ -20,6 +20,9 @@ type Config struct {
 
 	JWTSecret string
 	JWTExpiry time.Duration
+
+	EmailFrom string
+	ResendKey string
 }
 
 func Load() *Config {
@@ -40,6 +43,9 @@ func Load() *Config {
 
 		JWTSecret: envRequired("JWT_SECRET"),
 		JWTExpiry: envDuration("JWT_EXPIRY", 168*time.Hour), // 7 days default
+
+		EmailFrom: envString("EMAIL_FROM", ""),
+		ResendKey: envString("RESEND_KEY", ""),
 	}
 
 	return cfg

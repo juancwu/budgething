@@ -1,6 +1,11 @@
 package service
 
-import "context"
+import (
+	"context"
+	"log/slog"
+
+	"github.com/resend/resend-go/v2"
+)
 
 type EmailParams struct {
 	From    string
@@ -11,6 +16,34 @@ type EmailParams struct {
 
 type EmailClient interface {
 	SendWithContext(ctx context.Context, params EmailParams) (string, error)
+}
+
+type ResendClient struct {
+	client *resend.Client
+}
+
+func NewResendClient(apiKey string) *ResendClient {
+	var client *resend.Client
+	if apiKey != "" {
+		client = resend.NewClient(apiKey)
+	} else {
+		slog.Warn("cannot initialize Resend client with empty api key")
+		return nil
+	}
+	return &ResendClient{client: client}
+}
+
+func (c *ResendClient) SendWithContext(ctx context.Context, params EmailParams) (string, error) {
+	res, err := c.client.Emails.SendWithContext(ctx, &resend.SendEmailRequest{
+		From:    params.From,
+		To:      params.To,
+		Subject: params.Subject,
+		Text:    params.Text,
+	})
+	if err != nil {
+		return "", err
+	}
+	return res.Id, nil
 }
 
 type EmailService struct {

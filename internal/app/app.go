@@ -11,10 +11,11 @@ import (
 )
 
 type App struct {
-	Cfg         *config.Config
-	DB          *sqlx.DB
-	UserService *service.UserService
-	AuthService *service.AuthService
+	Cfg          *config.Config
+	DB           *sqlx.DB
+	UserService  *service.UserService
+	AuthService  *service.AuthService
+	EmailService *service.EmailService
 }
 
 func New(cfg *config.Config) (*App, error) {
@@ -28,16 +29,20 @@ func New(cfg *config.Config) (*App, error) {
 		return nil, fmt.Errorf("failed to run migrations: %w", err)
 	}
 
+	emailClient := service.NewResendClient(cfg.ResendKey)
+
 	userRepository := repository.NewUserRepository(database)
 
 	userService := service.NewUserService(userRepository)
 	authService := service.NewAuthService(userRepository)
+	emailService := service.NewEmailService(emailClient, cfg.EmailFrom, cfg.AppURL, cfg.AppName, cfg.AppEnv == "development")
 
 	return &App{
-		Cfg:         cfg,
-		DB:          database,
-		UserService: userService,
-		AuthService: authService,
+		Cfg:          cfg,
+		DB:           database,
+		UserService:  userService,
+		AuthService:  authService,
+		EmailService: emailService,
 	}, nil
 }
 
