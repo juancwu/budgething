@@ -26,6 +26,7 @@ func SetupRoutes(a *app.App) http.Handler {
 
 	// Auth pages
 	mux.HandleFunc("GET /auth", middleware.RequireGuest(auth.AuthPage))
+	mux.HandleFunc("GET /auth/password", middleware.RequireGuest(auth.PasswordPage))
 
 	// 404
 	mux.HandleFunc("/{path...}", home.NotFoundPage)
