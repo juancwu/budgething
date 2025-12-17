@@ -13,6 +13,7 @@ import (
 func SetupRoutes(a *app.App) http.Handler {
 	auth := handler.NewAuthHandler()
 	home := handler.NewHomeHandler()
+	dashboard := handler.NewDashboardHandler()
 
 	mux := http.NewServeMux()
 
@@ -28,6 +29,12 @@ func SetupRoutes(a *app.App) http.Handler {
 	mux.HandleFunc("GET /auth", middleware.RequireGuest(auth.AuthPage))
 	mux.HandleFunc("GET /auth/password", middleware.RequireGuest(auth.PasswordPage))
 
+	// ====================================================================================
+	// PRIVATE ROUTES
+	// ====================================================================================
+
+	mux.HandleFunc("GET /app/dashboard", middleware.RequireAuth(dashboard.DashboardPage))
+
 	// 404
 	mux.HandleFunc("/{path...}", home.NotFoundPage)
 
@@ -37,6 +44,7 @@ func SetupRoutes(a *app.App) http.Handler {
 		middleware.Config(a.Cfg),
 		middleware.RequestLogging,
 		middleware.CSRFProtection,
+		middleware.AuthMiddleware(a.AuthService, a.UserService),
 		middleware.WithURLPath,
 	)
 

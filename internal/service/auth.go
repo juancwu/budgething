@@ -8,6 +8,7 @@ import (
 	"git.juancwu.dev/juancwu/budgit/internal/model"
 	"git.juancwu.dev/juancwu/budgit/internal/repository"
 	"github.com/alexedwards/argon2id"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var (
@@ -72,4 +73,8 @@ func (s *AuthService) ComparePassword(password, hash string) error {
 		return e.WithError(ErrPasswordsDoNotMatch)
 	}
 	return nil
+}
+
+func (s *AuthService) VerifyJWT(value string) (jwt.MapClaims, error) {
+	return nil, nil
 }
